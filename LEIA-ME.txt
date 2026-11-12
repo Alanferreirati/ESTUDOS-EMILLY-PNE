@@ -1,0 +1,21 @@
+estudaemilly — como colocar no ar pelo Vercel
+=============================================
+
+O site é um único arquivo (index.html). Não precisa instalar nada.
+
+Opção 1: pelo terminal
+1. Descompacte este .zip. Vai ficar uma pasta "estudaemilly-pne" com o index.html dentro.
+2. Crie uma conta grátis em https://vercel.com (pode entrar com Google ou GitHub).
+3. No terminal (se tiver Node instalado):  npx vercel  dentro da pasta "estudaemilly-pne"
+   - Responda às perguntas; quando pedir o nome do projeto, digite: estudaemilly-pne
+   - Depois rode:  npx vercel --prod
+   O endereço ficará parecido com: https://estudaemilly-pne.vercel.app
+
+Opção 2: sem terminal (pelo GitHub)
+1. Crie um repositório no GitHub chamado "estudaemilly-pne" e envie o index.html
+   (botão "Add file" > "Upload files").
+2. Em vercel.com clique em "Add New..." > "Project", escolha o repositório e clique em "Deploy".
+   Não precisa mudar nenhuma configuração (Framework: Other).
+3. Pronto: o site fica em https://estudaemilly-pne.vercel.app (se o nome estiver livre).
+
+Para atualizar as questões depois, basta trocar o index.html e enviar de novo.

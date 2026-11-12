@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>estudaemilly PNE</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Simulados em casos clínicos de Pacientes com Necessidades Especiais.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: coluna única de leitura (max 760px); barra fixa no topo durante a prova; grade de cartões na tela inicial. */
+:root{
+  --bg:#f3f6f7;        /* esmalte frio */
+  --surface:#ffffff;
+  --surface-2:#e8eef0;
+  --ink:#16243a;       /* tinta de prontuário */
+  --muted:#5b6b7d;
+  --line:#d3dde2;
+  --accent:#3f55b8;    /* azul clínico */
+  --accent-soft:#e1e6fa;
+  --good:#1f7a55; --good-soft:#dcf1e7;
+  --bad:#b33a2e;  --bad-soft:#f8e0dc;
+  --warn:#8a5a00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e151d; --surface:#16202b; --surface-2:#1e2a37; --ink:#e7edf3; --muted:#9aabbd; --line:#2a3949;
+  --accent:#93a6ff; --accent-soft:#1c2347; --good:#5fd3a0; --good-soft:#123326; --bad:#ff8a7c; --bad-soft:#3a1c18; --warn:#f0c060;
+  color-scheme:dark; }}
+:root[data-theme="dark"]{
+  --bg:#0e151d; --surface:#16202b; --surface-2:#1e2a37; --ink:#e7edf3; --muted:#9aabbd; --line:#2a3949;
+  --accent:#93a6ff; --accent-soft:#1c2347; --good:#5fd3a0; --good-soft:#123326; --bad:#ff8a7c; --bad-soft:#3a1c18; --warn:#f0c060;
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 56px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.muted{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:15px;min-height:44px}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent}
+
+/* topo */
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;cursor:pointer}
+.logo b{color:var(--accent)}
+.tooth{width:22px;height:22px;flex:none}
+
+/* início */
+.hero{padding-block:28px 8px;display:grid;gap:12px}
+.hero h1{font-size:clamp(34px,7vw,52px);font-weight:800;letter-spacing:-.03em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{margin:0;max-width:58ch}
+.subjects{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;letter-spacing:.02em;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.chip.accent{background:var(--accent-soft);color:var(--accent)}
+
+.mode{margin-top:22px;display:grid;gap:8px}
+.label{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--surface-2);border-radius:var(--r);padding:4px}
+.seg button{border:0;background:transparent;border-radius:11px;padding:10px 12px;cursor:pointer;text-align:left;display:grid;gap:2px}
+.seg button strong{font-size:15.5px}
+.seg button span{font-size:13px;color:var(--muted);line-height:1.35}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.seg button[aria-pressed="true"] strong{color:var(--accent)}
+.opts{display:flex;align-items:center;gap:10px;margin-top:4px;font-size:15px}
+.opts input{width:18px;height:18px;accent-color:var(--accent)}
+
+.grid{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{border:1.5px solid var(--line);background:var(--surface);border-radius:var(--r);padding:16px;text-align:left;cursor:pointer;display:grid;gap:10px;align-content:start;min-width:0}
+.card:hover{border-color:var(--accent)}
+.card .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h3{font-size:22px;font-weight:700}
+.card .n{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.card .meta{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums;gap:8px}
+.card .meta b{color:var(--ink)}
+.card.mix{background:var(--surface-2);border-style:dashed}
+.foot{margin-top:28px;font-size:13.5px;color:var(--muted);display:grid;gap:6px}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:13.5px;justify-self:start}
+
+/* prova */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--surface)}
+.examhead{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.examhead .in{max-width:760px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:10px;display:flex;align-items:center;gap:12px}
+.examhead .ttl{font-family:var(--f-display);font-weight:700;font-size:17px;white-space:nowrap}
+.examhead .prog{flex:1;min-width:0;display:grid;gap:4px}
+.examhead .prog small{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;justify-content:space-between;gap:8px}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.qmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:22px}
+.qnum{font-family:var(--f-display);font-weight:800;font-size:15px;color:var(--accent);font-variant-numeric:tabular-nums}
+.qtext{font-size:clamp(19px,3.2vw,22px);line-height:1.45;margin:10px 0 18px;font-weight:700}
+.alts{display:grid;gap:10px;list-style:none;margin:0;padding:0}
+.alt{width:100%;display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;line-height:1.45;font-size:16.5px}
+.alt:hover:not(:disabled){border-color:var(--ink)}
+.alt .k{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-weight:700;font-size:14px;font-family:var(--f-display)}
+.alt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.alt[aria-pressed="true"] .k{background:var(--accent);color:var(--surface)}
+.alt.ok{border-color:var(--good);background:var(--good-soft)}
+.alt.ok .k{background:var(--good);color:var(--surface)}
+.alt.no{border-color:var(--bad);background:var(--bad-soft)}
+.alt.no .k{background:var(--bad);color:var(--surface)}
+.alt:disabled{cursor:default}
+.explain{margin-top:14px;border-radius:var(--r);padding:14px 16px;background:var(--surface-2);font-size:15.5px}
+.explain strong{display:block;margin-bottom:4px;font-family:var(--f-display);font-size:16px}
+.explain.good strong{color:var(--good)} .explain.bad strong{color:var(--bad)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
+.dots{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}
+.dot{height:38px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-size:13.5px;font-weight:700;cursor:pointer;font-variant-numeric:tabular-nums}
+.dot.done{background:var(--surface-2);border-color:var(--surface-2)}
+.dot.cur{border-color:var(--accent);color:var(--accent)}
+.dot.ok{background:var(--good-soft);border-color:var(--good-soft);color:var(--good)}
+.dot.no{background:var(--bad-soft);border-color:var(--bad-soft);color:var(--bad)}
+.confirm{margin-top:18px;border:1.5px solid var(--warn);border-radius:var(--r);padding:14px 16px;display:grid;gap:10px;background:var(--surface)}
+.confirm .row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* resultado */
+.score{margin-top:26px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.ring{width:132px;height:132px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .v{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--f-display)}
+.ring .v b{font-size:34px;font-weight:800;line-height:1}
+.ring .v span{font-size:12.5px;color:var(--muted);font-family:var(--f-body)}
+.score h2{font-size:clamp(26px,5vw,34px);font-weight:800}
+.score p{margin:6px 0 0}
+.stats{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:14.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink)}
+.section{margin-top:30px;display:grid;gap:12px}
+.section h3{font-size:20px}
+.topics{display:grid;gap:10px}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:4px 12px;align-items:center;font-size:15px}
+.trow .bar{grid-column:1/-1;height:8px}
+.trow .bar i.lo{background:var(--bad)} .trow .bar i.mid{background:var(--warn)} .trow .bar i.hi{background:var(--good)}
+.trow .pct{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.filter{display:flex;gap:8px;flex-wrap:wrap}
+.filter .btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.rev{border:1.5px solid var(--line);border-radius:var(--r);background:var(--surface);padding:14px 16px;display:grid;gap:8px}
+.rev.no{border-left:5px solid var(--bad)} .rev.ok{border-left:5px solid var(--good)} .rev.skip{border-left:5px solid var(--warn)}
+.rev .q{font-weight:700}
+.rev .a{font-size:15px;display:grid;gap:3px}
+.rev .a .y{color:var(--bad)} .rev .a .c{color:var(--good)}
+.rev .e{font-size:14.5px;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+@media (max-width:520px){
+  .score{grid-template-columns:1fr;justify-items:start}
+  .seg{grid-template-columns:1fr}
+  .examhead .ttl{display:none}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .fade{animation:fade .25s ease-out}
+  @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .ring circle.fg{transition:stroke-dashoffset .9s ease-out}
+}
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// Banco de questões — Clínica Integrada da Pessoa com Necessidades Especiais (PNE)
+// 5 provas x 25 questões, em formato de casos clínicos.
+// Formato: [tema, enunciado, [CORRETA, errada, errada, errada], explicação]
+const PROVAS = [
+{
+nome: "Prova 1",
+questoes: [
+["TEA","Caso: Lucas, 6 anos, chega com a mãe. Não faz contato visual, repete frases que ouve (ecolalia), anda na ponta dos pés e fica balançando as mãos. A mãe diz que ele ainda não tem diagnóstico. Qual a conduta correta do cirurgião-dentista?",
+["Não dar diagnóstico; se a família abrir espaço, sugerir avaliação com especialista","Informar à mãe que o filho tem TEA nível 2 e já iniciar o tratamento","Recusar o atendimento até que a família traga um laudo médico","Dizer à mãe que é só timidez e que isso passa com a idade"],
+"O dentista não dá diagnóstico de TEA. Se o responsável der abertura, pode sugerir procurar um profissional especializado. O atendimento odontológico continua normalmente, com manejo adaptado."],
+["TEA","Caso: Sofia, 8 anos, TEA nível 1, vai fazer a primeira consulta. A mãe conta que ela fica muito agitada com mudanças na rotina. O que orientar antes da consulta?",
+["Usar figuras antecipatórias e explicar o trajeto desde a saída de casa","Não contar nada para ela, para evitar ansiedade antecipada","Marcar cada consulta em horário e sala diferentes","Trazer a criança sem avisar que é dentista"],
+"Pessoas com TEA têm dificuldade com mudanças. Figuras antecipatórias e um cronograma com fotos do local ajudam a desmistificar o atendimento."],
+["TEA","Caso: Pedro, 10 anos, TEA, tem hipersensibilidade sensorial e se desespera com o barulho do motor. Tem uma lesão de cárie oclusal em molar. Qual abordagem é a mais indicada?",
+["ART, sem alta e baixa rotação, e dessensibilizar o barulho em casa","Sedação com óxido nitroso logo na primeira sessão","Restauração convencional com alta rotação e estabilização","Aguardar a lesão evoluir até ele aceitar o motor"],
+"O material orienta evitar alta e baixa rotação e usar ART. Para dessensibilizar, os pais podem ligar um secador de cabelo para ele se acostumar com o ruído."],
+["TEA","Qual instrumento de rastreio de risco de TEA é um checklist respondido pelos pais, em que de 8 a 20 pontos indicam alto risco?",
+["M-CHAT","IRDI","BTAT","Escala de Glasgow"],
+"M-CHAT (23 ou 27 questões): acima de 3 pontos há risco; de 3 a 7, risco moderado; de 8 a 20, alto risco. O IRDI também é um instrumento de risco, e o BTAT avalia o frênulo lingual."],
+["Hipertensão","Caso: Sr. José, 58 anos, hipertenso em uso de hidroclorotiazida, vai fazer uma raspagem. A PA aferida na cadeira é 135/85 mmHg. Qual a conduta?",
+["Atender, com consulta curta e manhã, e levantar a cadeira devagar","Adiar a raspagem e encaminhar ao médico com urgência","Suspender o diurético por conta própria 24 h antes","Usar lidocaína com epinefrina 1:50.000 sem limite"],
+"Valores de 120–139/80–89 mmHg estão na faixa de atenção. O diurético aumenta o risco de hipotensão ortostática, por isso a cadeira deve ser levantada devagar."],
+["Hipertensão","Caso: D. Maria, 62 anos, chega para uma exodontia eletiva. A PA aferida é 168/104 mmHg e ela está assintomática. Qual a conduta?",
+["Adiar o eletivo e encaminhar ao médico","Fazer a exodontia com 4 tubetes de anestésico","Dar um ansiolítico e fazer a exodontia mesmo assim","Fazer a exodontia sem anestésico para não subir a PA"],
+"Hipertensão estágio II (≥ 160/100): faixa vermelha, intervenção e adiamento do atendimento eletivo."],
+["Hipertensão","Caso: paciente hipertenso bem controlado precisa de uma restauração com anestesia. Qual o protocolo anestésico do material?",
+["Lidocaína 2% com epinefrina 1:100.000, até 2 tubetes","Lidocaína 2% com epinefrina 1:50.000, sem limite","Bupivacaína com epinefrina, 6 tubetes","Articaína com epinefrina 1:100.000, 5 tubetes"],
+"Limite de 0,04 mg de epinefrina por sessão, cerca de 2 tubetes. A prilocaína 3% com felipressina é a alternativa quando há contraindicação ao vasoconstritor adrenérgico."],
+["Cardiopatias","Caso: Sr. Antônio teve um infarto há 3 semanas e chega com uma restauração fraturada, sem dor. O que fazer?",
+["Adiar o eletivo; IAM com menos de 1 mês é alto risco","Fazer a restauração normalmente, pois não dói","Fazer a restauração sem anestesia para evitar risco","Suspender o AAS e fazer a restauração"],
+"IAM recente (< 1 mês): evitar tratamento eletivo; só urgências (dor, infecção, sangramento), em ambiente hospitalar. Após 6 meses o risco é menor."],
+["Cardiopatias","Caso: durante uma consulta, o paciente refere dor retrosternal irradiando para o braço esquerdo, com sudorese. Está consciente. Ele toma nitroglicerina e a dor passa em 5 minutos. Qual o quadro mais provável?",
+["Crise de angina pectoris","Infarto agudo do miocárdio","Crise de asma","Hipoglicemia"],
+"Na angina a dor dura de 2 a 10 minutos e alivia com repouso ou nitroglicerina sublingual. No IAM a dor não cede com repouso nem nitroglicerina."],
+["Cardiopatias","Caso: paciente usa AAS diariamente após colocar um stent e precisa extrair um dente. Qual a conduta?",
+["Manter o AAS e controlar o sangramento com medidas locais","Suspender o AAS 7 dias antes da extração","Trocar o AAS por varfarina antes da cirurgia","Contraindicar qualquer extração enquanto usar AAS"],
+"Não se suspende o AAS: o risco de trombose supera o de sangramento. Usa-se gaze, sutura, esponja de gelatina ou ácido tranexâmico local."],
+["Endocardite","Caso: Ana, 25 anos, tem prótese valvar cardíaca e vai fazer raspagem subgengival. Não tem alergias. Qual a profilaxia?",
+["Amoxicilina 2 g VO, dose única, 30 a 60 min antes","Amoxicilina 500 mg de 8/8 h por 7 dias depois","Azitromicina 500 mg por 3 dias após o procedimento","Não precisa de profilaxia para raspagem"],
+"Prótese valvar é condição de alto risco e a raspagem manipula o tecido gengival. Dose pediátrica de amoxicilina: 50 mg/kg."],
+["Endocardite","Para qual destes procedimentos NÃO é recomendada a profilaxia de endocardite, mesmo em paciente de alto risco?",
+["Radiografia","Exodontia","Raspagem subgengival","Anestesia infiltrativa que perfura a mucosa"],
+"A profilaxia é para manipulação gengival, periapical ou perfuração da mucosa. Exceções: radiografias, aparelhos removíveis, ajuste ortodôntico e esfoliação de decíduos."],
+["Doenças pulmonares","Caso: Gabriel, 12 anos, asmático, usa budesonida inalatória (bombinha) todos os dias e aparecem placas brancas removíveis no palato. Qual a orientação preventiva?",
+["Bochechar com água após cada uso da bombinha","Parar a bombinha por conta própria","Escovar só uma vez por semana","Usar a bombinha sempre de estômago vazio"],
+"O corticoide inalatório pode causar candidíase oral. Bochechar remove o excesso de pó. Com espaçador e máscara, também se lava a região perioral."],
+["Doenças pulmonares","Caso: paciente com asma moderada não controlada, que relata alergia a vinho e a embutidos, precisa de uma restauração com anestesia. Qual anestésico escolher?",
+["Mepivacaína sem vaso ou prilocaína com felipressina","Lidocaína com epinefrina 1:50.000","Articaína com epinefrina 1:100.000","Qualquer anestésico que contenha adrenalina"],
+"O bissulfito é o conservante dos anestésicos com adrenalina e também está em embutidos, cerveja e vinho. O asmático é 8 vezes mais alérgico ao bissulfito."],
+["Doenças pulmonares","Caso: Sr. Carlos, 65 anos, fumante há 40 anos, tem falta de ar, tosse com muco e chiado. Os danos aos pulmões são irreversíveis. Qual a doença?",
+["DPOC (bronquite crônica / enfisema)","Asma brônquica leve e controlada","Bronquiolite viral aguda do adulto","Pneumonia bacteriana comunitária"],
+"A DPOC é inflamatória, crônica, sistêmica e progressiva. A bronquite crônica é típica de fumantes e o enfisema é irreversível, ligado ao cigarro e à deficiência de α-1 antitripsina."],
+["Síndrome de Down","Caso: João, 15 anos, com Síndrome de Down, vai fazer uma restauração. Qual cuidado de posicionamento é fundamental?",
+["Evitar hiperextensão e flexão forçada do pescoço","Manter a cabeça bem estendida para ver melhor","Atender com o paciente totalmente deitado e cabeça para trás","Não há cuidado especial de posicionamento"],
+"A instabilidade atlanto-axial ocorre em 10 a 30% dos casos. Hiperextensão ou flexão forçada pode causar lesão medular grave."],
+["Síndrome de Down","Caso: Júlia, 20 anos, Síndrome de Down, tem perda óssea periodontal avançada, apesar de pouca experiência de cárie. Qual a explicação?",
+["Alterações imunológicas: menos quimiotaxia e fagocitose","Excesso de flúor na água de abastecimento","Uso diário de bombinha de corticoide inalatório","Escovação excessiva e com muita força"],
+"Na SD a periodontite tende a começar cedo e progredir rápido, por menor quimiotaxia e atividade fagocitária dos neutrófilos."],
+["Síndrome de Down","Qual a alteração cromossômica da Síndrome de Down?",
+["Trissomia do 21: 47 cromossomos","Monossomia do X: 45 cromossomos","Trissomia do 18: 47 cromossomos","Deleção no cromossomo 5: 46 cromossomos"],
+"Há um cromossomo a mais no par 21. Foi descrita por John Langdon Down em 1866."],
+["Síndrome de Down","Qual achado bucal é frequente na Síndrome de Down?",
+["Agenesia de incisivos laterais e erupção tardia","Erupção precoce de todos os permanentes","Macrodontia generalizada","Palato baixo e largo"],
+"Também são comuns: microdontia, palato alto e estreito, tendência a Classe III, mordida aberta e cruzada, macroglossia relativa, língua fissurada e bruxismo."],
+["Diabetes","Caso: paciente com diabetes tipo 2 vai fazer uma raspagem. Qual o planejamento ideal da consulta?",
+["Consulta curta, de manhã, após o paciente se alimentar","Consulta longa à tarde, em jejum","Consulta à noite, logo depois da insulina sem comer","Consulta em qualquer horário, sem perguntar sobre a glicemia"],
+"Sessões curtas pela manhã, após a alimentação, com controle da ansiedade e glicemia capilar. Estresse libera catecolaminas e aumenta a glicose."],
+["Diabetes","Caso: no meio do atendimento, uma paciente diabética que tomou insulina e não tomou café fica pálida, suada, trêmula e confusa. A glicemia capilar é 58 mg/dL. Qual o quadro?",
+["Hipoglicemia","Cetoacidose diabética","Crise hipertensiva","Crise de asma"],
+"Hipoglicemia é a glicose abaixo de 70 mg/dL. É uma emergência médica e mais comum no DM tipo 1."],
+["Diabetes","Caso: paciente relata sede intensa, muita fome, urinar muito e perder peso sem explicação. Também tem periodontite e candidíase de repetição. O que sugere?",
+["Hiperglicemia: possível diabetes","Hipertensão arterial bem controlada","Asma brônquica de origem alérgica","Efeito colateral do uso de fio dental"],
+"Os 4 'P' (polidipsia, polifagia, poliúria, perda de peso) são sinais típicos. Cerca de 50% das pessoas com diabetes não sabem que têm."],
+["Bebês e gestantes","Caso: gestante de 8 semanas pede para extrair um dente com cárie extensa, sem dor nem infecção. Qual a orientação?",
+["Programar a exodontia para o 2º trimestre","Extrair imediatamente","Contraindicar qualquer tratamento até o parto","Esperar o fim da amamentação"],
+"Procedimentos mais invasivos são recomendados a partir do 2º trimestre, exceto em urgências. Cada caso é avaliado em contato com o médico."],
+["Bebês e gestantes","Caso: a mãe de um bebê de 7 meses relata coceira na gengiva, irritabilidade e muita saliva. Ela pergunta se pode passar uma pomada anestésica. O que responder?",
+["As pomadas anestésicas são contraindicadas; use mordedor ou dedeira","Pode passar a pomada várias vezes ao dia, sem problema","Deve dar antibiótico por causa da erupção dos dentes","Esses sintomas não têm nenhuma relação com os dentes"],
+"Para aliviar: picolé de frutas e leite materno, mordedores gelados, dedeira (só para massagem). Se tiver febre, investigar."],
+["Bebês e gestantes","Caso: no 'teste da linguinha', um recém-nascido tem pontuação 4 na avaliação anatomofuncional (itens 1 a 3) nas primeiras 48 h. O que isso indica?",
+["Indicação de frenotomia ainda na maternidade","Frênulo normal, sem necessidade de nada","Reteste só aos 2 anos de idade","Exodontia dos dentes natais"],
+"Pelo protocolo de Martinelli (2013), pontuação 4 ou mais indica cirurgia. Em caso de dúvida (5 ou 6 no escore total), reteste aos 30 dias de vida."]
+]},
+{
+nome: "Prova 2",
+questoes: [
+["TEA","Caso: Miguel, 4 anos, TEA nível 3, chega muito agitado, sem querer sentar na cadeira. É a primeira consulta, sem urgência. Qual a conduta inicial?",
+["Esgotar comunicação e condicionamento; pode começar até no chão","Fazer estabilização protetora logo de início","Encaminhar direto para anestesia geral","Pedir aos pais que voltem só quando ele aceitar a cadeira"],
+"Deve-se esgotar os recursos de interação e comunicação antes de sedação ou estabilização. O primeiro atendimento pode ser feito no chão, de forma individualizada."],
+["TEA","Caso: Rafael, 9 anos, TEA, chega com abscesso e dor intensa, muito agitado. Não há tempo para condicionamento. Qual a conduta?",
+["Resolver a urgência com recursos avançados e depois retomar","Adiar e fazer 3 meses de condicionamento antes de tratar","Prescrever só analgésico e não tratar o dente","Recusar o paciente por falta de cooperação"],
+"Em urgência pode não haver tempo para condicionamento. Resolve-se a urgência com recursos avançados e retoma-se a interação depois."],
+["TEA","Caso: a mãe de um paciente com TEA que usa risperidona pede dicas de higiene. Qual alteração bucal pode estar ligada aos medicamentos?",
+["Xerostomia, hiperplasia gengival e sangramento","Hipercementose generalizada das raízes","Fluorose dentária nos dentes permanentes","Dentes supranumerários na região anterior"],
+"Antipsicóticos, antidepressivos e anticonvulsivantes podem causar boca seca, aumento gengival e sangramento. Não se deve julgar a higiene do paciente."],
+["TEA","Qual técnica foi citada para condicionar a abertura de boca em pacientes com TEA?",
+["Contar em voz alta de 1 a 10","Abrir a boca à força com abridor","Dar um susto para a criança abrir a boca","Não avisar quanto tempo vai durar"],
+"Contar ajuda o paciente a entender o tempo do procedimento. Junto com isso, reforço positivo e elogios."],
+["Hipertensão","Caso: paciente usa anlodipina e apresenta aumento gengival generalizado. Qual a explicação?",
+["Hiperplasia gengival por bloqueador de canal de cálcio","Candidíase causada por corticoide inalatório","Reação liquenoide causada pelo diurético","Gengivite gravídica por excesso de estrogênio"],
+"Anlodipina e nifedipina são bloqueadores dos canais de cálcio e podem induzir hiperplasia gengival."],
+["Hipertensão","Caso: paciente hipertenso relata tosse seca persistente e alteração do paladar depois que começou um novo remédio. Qual classe provavelmente causou isso?",
+["Inibidor da ECA (ex.: captopril)","Diurético tiazídico","Bloqueador de canal de cálcio","Betabloqueador"],
+"Os inibidores da ECA também podem causar ardência bucal e neutropenia. Metildopa e propranolol podem causar reações liquenoides."],
+["Hipertensão","Caso: depois de 1 h de cirurgia com a cadeira deitada, um paciente em uso de hidralazina se levanta rápido e fica tonto, quase desmaia. O que houve?",
+["Hipotensão ortostática","Crise hipertensiva","Infarto agudo do miocárdio","Hiperglicemia"],
+"Diuréticos e vasodilatadores (hidralazina, minoxidil) aumentam o risco. A cadeira deve ser levantada de forma lenta e progressiva."],
+["Cardiopatias","Caso: paciente com angina instável (dores cada vez mais frequentes, até em repouso) pede um clareamento. Qual a conduta?",
+["Contraindicar o eletivo; só urgência e em hospital","Fazer o clareamento normalmente, com anestesia","Fazer o clareamento, mas só no período da manhã","Suspender a nitroglicerina e fazer o clareamento"],
+"Angina instável tem contraindicação absoluta para tratamento eletivo. Urgências (dor, infecção, sangramento) são atendidas em ambiente hospitalar."],
+["Cardiopatias","Caso: paciente em uso de varfarina vai extrair um molar. Qual exame pedir e qual valor permite o procedimento?",
+["RNI; deve estar ≤ 2,5","Hemograma; plaquetas acima de 50.000","Glicemia; abaixo de 100 mg/dL","RNI; deve estar acima de 4"],
+"O RNI verifica o efeito da varfarina. Com RNI ≤ 2,5 o procedimento pode ser feito com segurança no consultório."],
+["Cardiopatias","Caso: paciente com angina estável vai fazer uma restauração. Qual anestésico o material sugere no lugar da epinefrina?",
+["Mepivacaína com corbadrina ou prilocaína com felipressina","Bupivacaína com epinefrina 1:200.000","Lidocaína com epinefrina na concentração 1:50.000","Nenhum anestésico local pode ser usado"],
+"Também: consultas curtas e matinais, posição confortável, aferir PA e pulso e deixar nitroglicerina disponível."],
+["Endocardite","Caso: paciente com histórico de endocardite e alergia à penicilina vai fazer uma exodontia. Qual a profilaxia?",
+["Azitromicina 500 mg, 30 a 60 min antes","Amoxicilina 2 g, 30 a 60 min antes","Amoxicilina com clavulanato por 7 dias","Nenhuma, por causa da alergia"],
+"Para alérgicos: azitromicina 500 mg (criança: 15 mg/kg) ou claritromicina 500 mg (criança: 15 mg/kg), dose única antes do procedimento."],
+["Endocardite","Caso: paciente de alto risco para endocardite precisa de várias sessões de raspagem com profilaxia. Qual intervalo entre as sessões?",
+["Pelo menos 9 dias","24 horas","2 dias","Não há intervalo mínimo"],
+"O intervalo de no mínimo 9 dias evita a seleção de bactérias resistentes na boca."],
+["Doenças pulmonares","Caso: criança asmática com muita cárie e biofilme. A mãe não entende o motivo, já que a criança escova. Qual a possível relação com a asma?",
+["Os medicamentos da asma reduzem a saliva","A asma causa fluorose","A bombinha contém açúcar e flúor demais","Não há relação entre asma e cárie"],
+"Os medicamentos reduzem a saliva total em cerca de 20% e a da parótida em 35%, o que favorece cárie e acúmulo de biofilme."],
+["Doenças pulmonares","Caso: recém-nascido com infecção viral aguda nos bronquíolos, muito muco e chiado. Qual o diagnóstico e o agente mais comum?",
+["Bronquiolite, pelo vírus sincicial respiratório","Asma brônquica, por eosinófilos","DPOC, por tabagismo passivo","Enfisema, por deficiência de α-1 antitripsina"],
+"A bronquiolite costuma acometer recém-nascidos, com muco, inflamação e broncoespasmo reversível."],
+["Doenças pulmonares","Caso: na avaliação de um paciente com DPOC, a oximetria em repouso mostra SpO2 de 89%. Qual o significado?",
+["Abaixo de 92%: pedir gasometria e avaliar O2","Valor normal para a idade, sem nenhuma preocupação","Indica uma crise de hipoglicemia em andamento","Indica hipertensão arterial em estágio II"],
+"Com SpO2 < 92% indica-se gasometria arterial para avaliar a gravidade e a necessidade de oxigenoterapia."],
+["Síndrome de Down","Caso: adolescente com Síndrome de Down tem desgaste erosivo nos dentes e hipersensibilidade. A mãe conta que ele engasga e tem refluxo. Qual a conduta?",
+["Tratar o desgaste e encaminhar ao gastro","Restaurar os dentes e ignorar o refluxo","Prescrever antibiótico por 7 dias seguidos","Indicar a exodontia dos dentes desgastados"],
+"Alterações de motilidade esofágica e refluxo são frequentes na SD. A exposição ao ácido gástrico causa erosão dentária."],
+["Síndrome de Down","Qual percentual aproximado de pessoas com Síndrome de Down tem cardiopatia congênita?",
+["Cerca de 50%","Cerca de 5%","Cerca de 100%","Cerca de 15%"],
+"A mais frequente é o defeito do septo atrioventricular. A profilaxia de endocardite só é feita com indicação cardiológica específica."],
+["Síndrome de Down","Caso: paciente de 48 anos com Síndrome de Down perdeu peso e memória, está mais dependente e conversa menos. Qual condição investigar?",
+["Doença de Alzheimer precoce","Diabetes tipo 1","Instabilidade atlanto-axial","Asma brônquica"],
+"Na SD há maior risco de Alzheimer precoce, mais frequente após os 40 a 50 anos. Pode haver também convulsões e perda de habilidades motoras."],
+["Síndrome de Down","Qual característica craniofacial é típica da Síndrome de Down?",
+["Terço médio pouco desenvolvido e Classe III","Mandíbula retruída com Classe II divisão 2","Prognatismo maxilar com overjet acentuado","Face alongada com palato baixo e muito largo"],
+"Também: postura anterior e inferior da língua, macroglossia relativa e ausência de selamento labial passivo."],
+["Diabetes","Caso: paciente diabético descompensado precisa de anestesia para tratar uma dor. Qual anestésico o material indica?",
+["Prilocaína + felipressina ou mepivacaína sem vaso","Lidocaína com epinefrina 1:50.000","Articaína com noradrenalina","Qualquer anestésico que tenha adrenalina"],
+"O material orienta não usar anestésicos à base de adrenalina ou noradrenalina nesses casos. Também se faz glicemia capilar antes."],
+["Diabetes","Qual a diferença entre diabetes tipo 1 e tipo 2?",
+["Tipo 1: autoimune, sem insulina; tipo 2: resistência à insulina","Tipo 1: em adultos obesos; tipo 2: autoimune em crianças","Os dois são autoimunes e iguais","Tipo 1 só ocorre na gravidez"],
+"DM1: 5 a 10% dos casos, em jovens, sintomas rápidos. DM2: 90 a 95% dos casos, adultos após os 40 anos, associado a obesidade."],
+["Diabetes","Caso: paciente diabético descompensado. Qual cuidado considerar no atendimento?",
+["É imunodeprimido, suscetível a infecção e pode sangrar mais","Pode receber qualquer AINE sem nenhum cuidado","Não precisa medir a glicemia antes do atendimento","Tem menos risco de infecção que a população geral"],
+"Atenção também às interações com sulfonamidas (Bactrim), AINEs, anti-inflamatórios esteroidais e betabloqueadores."],
+["Bebês e gestantes","Caso: gestante no 6º mês relata: 'minha gengiva sempre sangra'. Qual a explicação mais provável?",
+["Gengivite gravídica (estrogênio alto)","Leucemia aguda, até que se prove o contrário","Deficiência grave de vitamina C (escorbuto)","Efeito colateral da anestesia odontológica"],
+"A gengivite é a alteração periodontal mais frequente na gestação (30 a 100%). As mudanças vão do 3º ao 8º mês e diminuem após o parto."],
+["Bebês e gestantes","Caso: a mãe de um bebê de 4 meses, ainda sem dentes, pergunta se deve limpar a boca dele com gaze todos os dias. O que dizer?",
+["Não há evidência; inicia-se a escovação com o 1º dente","Sim, com gaze e álcool três vezes ao dia","Sim, com pasta de 1.500 ppm desde o nascimento","Sim, com enxaguante bucal"],
+"Com o primeiro dente começa a escovação com escova e pasta de 1.000 ppm de flúor, na quantidade adequada para a idade."],
+["Bebês e gestantes","Caso: uma mãe diz que vai parar de amamentar à noite porque 'leite materno dá cárie'. Qual a orientação?",
+["Leite materno não causa cárie; o risco é o açúcar","Está certa: o leite materno é muito cariogênico","Deve trocar o peito por mamadeira com açúcar à noite","Deve parar de amamentar de vez aos 3 meses"],
+"De 12 a 24 meses, a cárie aparece quando a amamentação é muito frequente ou vem junto com mais consumo de açúcar."]
+]},
+{
+nome: "Prova 3",
+questoes: [
+["TEA","Caso: a mãe de Davi, TEA, pergunta como ajudar na escovação em casa sem machucar o filho. Qual orientação o material dá?",
+["Escova de cabo longo e estimular o contato visual pelo espelho","Escovar com bastante força e bem rápido","Evitar a escovação para não deixar o filho estressado","Usar só enxaguante bucal no lugar da escova"],
+"Também: usar imagens antes dos procedimentos e considerar o que ele gosta e não gosta."],
+["TEA","Qual a proporção aproximada de meninos e meninas com TEA?",
+["3,5 a 4 meninos para cada menina","1 menino para cada 4 meninas","Igual entre os sexos","10 meninos para cada menina"],
+"O 'efeito protetor feminino' sugere que meninas precisam de uma carga maior para manifestar o TEA, mas quando têm, o quadro tende a ser mais grave."],
+["TEA","Caso: paciente com TEA nível 2, não verbal, recusa a máscara no rosto. Por que o óxido nitroso tende a não funcionar?",
+["Ele não aceita ficar com a máscara durante a sedação","O óxido nitroso é proibido para pessoas com TEA","O TEA impede a absorção do gás pelos pulmões","O gás só funciona em pacientes adultos"],
+"Técnicas avançadas: sedação, óxido nitroso e anestesia geral. Na anestesia geral faz-se tudo de uma vez, para evitar anestesiar mais de uma vez."],
+["TEA","Qual a diferença entre comunicação alternativa de baixa e de alta tecnologia?",
+["Baixa: pranchas; alta: aplicativos","Baixa: aplicativos; alta: pranchas de papel","Baixa: sedação; alta: anestesia geral","Não existe diferença entre elas na prática"],
+"A comunicação alternativa desmistifica o atendimento e ajuda no manejo. O uso de celulares e tablets tem ajudado na inclusão."],
+["Hipertensão","Caso: paciente com PA de 145/92 mmHg. Como classificar e o que fazer?",
+["Hipertensão estágio I: alerta e monitorar","Normal: atendimento livre","Pré-hipertensão: sem nenhuma conduta","Estágio II: hospitalização imediata"],
+"Estágio I: 140–159 / 90–99 mmHg (vermelho, monitorar). Estágio II: ≥ 160 / ≥ 100 (adiar)."],
+["Hipertensão","Qual é a principal preocupação do dentista ao atender um hipertenso?",
+["Catecolaminas liberadas por estresse e dor","Excesso de flúor depositado nos dentes","Risco de anquilose dos dentes posteriores","Fluorose causada pelos anti-hipertensivos"],
+"Uma crise de ansiedade pode precipitar angina, IAM, insuficiência cardíaca ou AVE. Por isso: aferir PA, consultas curtas e controle da dor."],
+["Hipertensão","Caso: paciente sem diagnóstico de hipertensão, com PA de 150/95 mmHg na triagem. Qual o papel do dentista?",
+["Pode detectar a HAS e deve encaminhar ao médico","Não deve medir a PA de quem não é hipertenso","Deve prescrever anti-hipertensivo","Deve ignorar, porque não tem sintomas"],
+"A HAS costuma ser assintomática. Aferir a PA é rotina para todos os pacientes, com ou sem diagnóstico."],
+["Cardiopatias","Caso: durante uma exodontia, o paciente tem dor intensa e opressiva no peito, falta de ar, náusea e 'sensação de morte'. A dor não melhora com nitroglicerina. O que suspeitar?",
+["Infarto agudo do miocárdio","Angina estável","Crise de ansiedade leve","Hipotensão ortostática"],
+"No IAM a dor não cede com repouso nem com nitroglicerina sublingual. É uma emergência médica."],
+["Cardiopatias","Caso: paciente sofreu IAM há 8 meses, está estável e sem sintomas. Pode fazer tratamento odontológico ambulatorial?",
+["Sim, com consulta curta, matinal e nitroglicerina","Não, só depois de 5 anos do infarto","Não, apenas em hospital para o resto da vida","Sim, sem nenhum cuidado especial"],
+"Após 6 meses o risco é menor. Monitorar PA e pulso, controlar dor e estresse e deixar nitroglicerina disponível."],
+["Cardiopatias","Qual a principal causa da isquemia cardíaca, segundo o material?",
+["Aterosclerose (placas nas artérias)","Excesso de flúor circulando no sangue","Infecção viral da garganta não tratada","Asma brônquica mal controlada"],
+"As placas têm fibrose, calcificação e hemorragia interna. Reduzem o fluxo, gerando angina ou infarto."],
+["Endocardite","Caso: criança de 20 kg com cardiopatia congênita cianótica não corrigida vai fazer uma exodontia. Qual a dose de amoxicilina na profilaxia?",
+["1 g (50 mg/kg)","2 g (dose de adulto)","250 mg (12,5 mg/kg)","5 g (250 mg/kg)"],
+"Dose pediátrica: 50 mg/kg, em dose única, de 30 a 60 minutos antes. 50 × 20 = 1.000 mg."],
+["Endocardite","Qual sintoma está presente em cerca de 95% dos casos de endocardite infecciosa?",
+["Febre","Dor de dente","Tosse seca","Perda de memória"],
+"Também: sopro cardíaco, anorexia, prostração, mal-estar, lesões cutâneas, fenômenos embólicos e hemocultura positiva."],
+["Doenças pulmonares","Caso: paciente com asma leve, controlada e sem alergia a sulfitos vai fazer uma restauração. Qual anestésico pode ser usado?",
+["Anestésico com vasoconstritor adrenérgico","Somente anestésico sem vasoconstritor","Somente anestesia tópica, sem injeção","Nenhum anestésico local pode ser usado"],
+"Na asma leve e controlada sem alergia pode-se usar vasoconstritor adrenérgico, com atenção ao estresse e à ansiedade."],
+["Doenças pulmonares","Na asma, qual célula é a principal efetora da lesão tecidual e da fase tardia?",
+["Eosinófilo","Mastócito","Hemácia","Plaqueta"],
+"Mastócitos disparam a fase imediata, linfócitos T orquestram a resposta e macrófagos são sentinelas."],
+["Doenças pulmonares","Caso: paciente com DPOC usa teofilina e tem candidíase. O que diz o material sobre DPOC e saúde bucal?",
+["Na DPOC há mais cândida; teofilina é fator de risco","DPOC protege contra a doença periodontal","A teofilina causa fluorose nos dentes","Não existe relação entre DPOC e a boca"],
+"Doença periodontal e saúde bucal precária estão associadas a doenças sistêmicas como a DPOC."],
+["Síndrome de Down","Caso: criança com Síndrome de Down, com a boca sempre aberta e respiração bucal, ronca e acorda várias vezes à noite. O que é provável?",
+["Apneia obstrutiva do sono","Asma induzida por exercício","Crise de hipoglicemia","Instabilidade atlanto-axial"],
+"A apneia obstrutiva do sono ocorre em 50 a 79% das crianças com T21, pelo estreitamento das vias aéreas superiores."],
+["Síndrome de Down","Caso: paciente com Síndrome de Down tem língua que parece grande, mas o tamanho é normal. Como se chama?",
+["Macroglossia relativa","Anquiloglossia (língua presa)","Glossite migratória benigna","Macroglossia verdadeira por tumor"],
+"A língua parece grande pelo hipodesenvolvimento do terço médio e pela hipotonia, e não por crescimento real."],
+["Síndrome de Down","Qual exame do pré-natal estima o risco de Síndrome de Down entre 11 e 14 semanas?",
+["Ultrassom com translucência nucal","Hemograma completo da gestante","Teste do pezinho da gestante","Radiografia panorâmica da mãe"],
+"O ultrassom estima o risco, mas não confirma. Também avalia osso nasal e ducto venoso."],
+["Síndrome de Down","Na Síndrome de Down, qual tipo de manejo comportamental é indicado primeiro?",
+["Individualizar e usar falar-mostrar-fazer","Anestesia geral em todas as consultas","Estabilização protetora sempre, de rotina","Atender sem conversar com o paciente"],
+"Técnicas farmacológicas (sedação ou anestesia geral) ficam para quando forem necessárias."],
+["Diabetes","Caso: paciente com glicemia de jejum de 150 mg/dL e HbA1c de 7,5%. Como classificar o risco odontológico?",
+["Risco moderado","Procedimento normal, sem risco","Emergência médica imediata","Glicemia normal"],
+"101–125 mg/dL (HbA1c < 6,5%): procedimento normal. 126–199 mg/dL ou HbA1c de 6,5 a 8,5%: risco moderado. Acima disso: alto risco."],
+["Diabetes","Caso: um diabético tipo 1 está sem insulina há dias. O corpo passa a usar gordura como energia, formando ácidos que desequilibram o pH do sangue. Qual a complicação?",
+["Cetoacidose diabética","Hipoglicemia","Hipotensão ortostática","Endocardite infecciosa"],
+"As cetonas são ácidos que acidificam o sangue. É uma emergência médica."],
+["Diabetes","Qual achado bucal é comum no paciente diabético?",
+["Periodontite com perda óssea e xerostomia","Fluorose dentária em todos os dentes","Dentes supranumerários na pré-maxila","Amelogênese imperfeita hereditária"],
+"Também: abscessos, candidíase, hipertrofia benigna da parótida, cárie, ardência bucal e alteração do paladar."],
+["Bebês e gestantes","Qual alteração na gestação NÃO está associada à doença periodontal, segundo o material?",
+["Diabetes tipo 1 da mãe","Parto pré-termo (antes de 37 semanas)","Baixo peso ao nascer (abaixo de 2.500 g)","Pré-eclâmpsia"],
+"A doença periodontal na gestação foi associada a prematuridade, baixo peso ao nascer e pré-eclâmpsia (PA ≥ 140/90 com proteinúria após 20 semanas)."],
+["Bebês e gestantes","Caso: a mãe pergunta qual chupeta 'ortodôntica' comprar para não entortar os dentes. O que responder?",
+["Não existe chupeta ortodôntica; orientar o desmame","A ortodôntica pode ser usada à vontade","Qualquer chupeta serve, sem consequências","Só a de silicone é ortodôntica"],
+"O uso prolongado leva a mordida aberta, respiração bucal, músculos flácidos e língua fraca. Quanto mais cedo corrigir, melhor."],
+["Bebês e gestantes","Qual a recomendação da OMS sobre o início da amamentação?",
+["Na 1ª hora de vida, exclusiva até 6 meses","Só depois do terceiro dia de vida","Só depois que o bebê tomar água","Exclusiva até os 2 meses de vida"],
+"O aleitamento exclusivo significa nenhum outro alimento ou líquido, nem água."]
+]},
+{
+nome: "Prova 4",
+questoes: [
+["TEA","Caso: a mãe de Lia, 3 anos, conta que ela não responde quando a chamam, não aponta e não imita gestos. Qual a conduta do dentista?",
+["Acolher e, se a mãe permitir, sugerir avaliação especializada","Dar o diagnóstico de TEA na hora, pela observação","Dizer que é normal e que não precisa investigar","Prescrever melatonina para melhorar a atenção"],
+"O diagnóstico de TEA deveria acontecer entre 2 e 4 anos, por profissionais qualificados. No Brasil a média é de 6 a 7 anos."],
+["TEA","Por que a identificação precoce do TEA é tão importante?",
+["Com tratamento precoce, um nível 3 pode chegar a nível 1","O TEA desaparece com o tempo, sem tratamento","O diagnóstico precoce não muda nada","Para poder fazer o tratamento só com medicamentos"],
+"Sem tratamento, o nível 1 também pode piorar. 'A falta de tratamento pode atrapalhar; o tratamento pode ajudar.'"],
+["TEA","Caso: paciente com TEA tem dieta restrita a poucos alimentos coloridos e industrializados. O que fazer?",
+["Orientar a dieta sem julgar o diário alimentar","Repreender a família pelo diário alimentar","Proibir todos os alimentos que ele aceita","Não abordar a dieta com a família"],
+"Pode haver aversão a textura, cor ou cheiro, e alimentos coloridos chamam mais a atenção, aumentando o consumo de cariogênicos."],
+["TEA","Qual medicamento foi citado como o primeiro prescrito para pacientes com TEA?",
+["Risperidona","Amoxicilina","Insulina","Captopril"],
+"A risperidona é um neuroléptico atípico. Ajuda a reduzir o comportamento destrutivo, a agitação e a ansiedade."],
+["Hipertensão","Qual destes é um fator de risco para hipertensão arterial?",
+["Obesidade (IMC acima de 30)","Uso de fio dental","Escovação 3 vezes ao dia","Uso de flúor"],
+"Outros fatores: tabagismo, sedentarismo, dislipidemia, estresse, idade e história familiar."],
+["Hipertensão","Caso: paciente hipertenso tem lesões brancas reticulares na mucosa jugal, parecidas com líquen plano, depois de começar propranolol. O que suspeitar?",
+["Reação liquenoide pelo medicamento","Candidíase por corticoide","Hiperplasia por bloqueador de cálcio","Leucoplasia por tabagismo"],
+"Metildopa e propranolol podem causar reações liquenoides."],
+["Hipertensão","Qual anestésico deve ser evitado no hipertenso pelo risco de aumentar muito a pressão?",
+["Lidocaína com epinefrina 1:50.000","Lidocaína com epinefrina 1:100.000 (2 tubetes)","Prilocaína com felipressina","Mepivacaína sem vasoconstritor"],
+"A alta concentração de epinefrina deve ser evitada. A mepivacaína sem vaso pode ser usada, mas tem menos duração e hemostasia."],
+["Cardiopatias","Caso: paciente com histórico de IAM vai ser atendido. O que deve haver no consultório para emergência?",
+["Nitroglicerina sublingual","Insulina de ação rápida","Bombinha de salbutamol","Fluoreto de sódio"],
+"A nitroglicerina é um vasodilatador coronariano que alivia a crise de angina."],
+["Cardiopatias","Caso: paciente com angina estável. Qual destes NÃO faz parte dos cuidados recomendados?",
+["Consulta longa à tarde para fazer tudo de uma vez","Consultas curtas, de preferência pela manhã","Aferir a PA e o pulso antes de começar","Deixar nitroglicerina disponível na clínica"],
+"Também é importante verificar se o paciente usa antiagregante e reduzir o estresse e a ansiedade."],
+["Cardiopatias","O que é o infarto agudo do miocárdio, segundo o material?",
+["Lesão irreversível do miocárdio por isquemia de 20 a 30 min","Dor torácica passageira que cede em cerca de 2 minutos","Inflamação da valva cardíaca causada por bactérias","Pressão alta persistente e sem sintomas"],
+"Resulta da doença progressiva das artérias coronárias (aterosclerose)."],
+["Endocardite","Quais são os dois fatores normalmente necessários para a endocardite infecciosa?",
+["Endocárdio alterado e bactérias no sangue","Pressão alta e diabetes descompensado","Asma brônquica e uso diário de bombinha","Cárie extensa e excesso de flúor na água"],
+"O coração normal é resistente à infecção. Bacteremia maciça ou microrganismos muito virulentos (ex.: S. aureus) podem infectar até valvas normais."],
+["Endocardite","Caso: paciente de alto risco para endocardite tem gengivite e periodontite. Qual o principal objetivo preventivo?",
+["Eliminar focos infecciosos e manter ótima higiene","Fazer profilaxia antibiótica todos os dias","Não escovar para não causar bacteremia","Extrair todos os dentes de forma preventiva"],
+"Mastigar, escovar e usar fio provocam bacteremias diárias. A boca saudável reduz a frequência e a intensidade delas."],
+["Doenças pulmonares","Caso: paciente asmático tem uma crise com chiado, falta de ar e aperto no peito durante a consulta. Qual medicamento de ação curta é usado para alívio?",
+["Salbutamol (Aerolin)","Insulina de ação rápida","Captopril sublingual","Amoxicilina 2 g"],
+"Broncodilatadores de ação curta: salbutamol, fenoterol, ipratrópio. De ação longa: salmeterol e formoterol."],
+["Doenças pulmonares","Caso: paciente de 30 anos, não fumante, com enfisema precoce. Qual exame investigar?",
+["Dosagem de α-1 antitripsina","Glicemia capilar em jejum","RNI (razão normalizada)","Teste da linguinha"],
+"A dosagem é indicada em não fumantes com início antes da 4ª década. Deficiência: nível sérico < 11 µmol/L (< 80 mg/dL)."],
+["Doenças pulmonares","Caso: criança asmática que usa corticoide com espaçador e máscara. Além de bochechar, o que orientar?",
+["Lavar a região perioral","Parar de usar a máscara","Passar pomada anestésica","Escovar com pasta sem flúor"],
+"O excesso de pó do corticoide pode causar candidíase e irritação."],
+["Síndrome de Down","Caso: criança com Síndrome de Down de 6 anos ainda não perdeu nenhum dente decíduo e os permanentes ainda não nasceram. É esperado?",
+["Sim: a erupção tende a ser mais tardia","Não, deve ser feita a exodontia de todos os decíduos","Não, é sinal de fluorose","Sim, porque a criança tem diabetes"],
+"Na SD a erupção das duas dentições é mais tardia, com alteração da sequência e retenção prolongada de decíduos."],
+["Síndrome de Down","Na Síndrome de Down, por que a hipotonia é importante para o dentista?",
+["Afeta mastigação, deglutição, fala e língua","Aumenta a dureza e a resistência do esmalte","Protege o paciente contra a doença periodontal","Não tem nenhuma relação com a boca e a face"],
+"Por isso o acompanhamento é multiprofissional, incluindo a fonoaudiologia quando indicado."],
+["Síndrome de Down","Qual alteração endócrina é mais frequente na Síndrome de Down?",
+["Hipotireoidismo","Hipertireoidismo grave","Diabetes gestacional","Acromegalia"],
+"Também há maior predisposição a obesidade e DM tipo 1, em comparação a grupos controle."],
+["Síndrome de Down","Caso: paciente com Síndrome de Down vai fazer um procedimento e você nota cardiopatia na anamnese. Quando fazer profilaxia antibiótica para endocardite?",
+["Só quando houver indicação cardiológica específica","Sempre, em todos os pacientes com Síndrome de Down","Nunca, em nenhum paciente com Síndrome de Down","Só se o paciente também tiver diabetes"],
+"Muitas cardiopatias da SD são corrigidas cedo. A indicação depende da avaliação do cardiologista."],
+["Diabetes","Caso: paciente diabético muito ansioso. Por que a ansiedade pode piorar a glicemia?",
+["Libera catecolaminas, que sobem a glicose","A ansiedade reduz a glicose a praticamente zero","A ansiedade não tem nenhuma relação com a glicemia","A ansiedade aumenta muito a produção de insulina"],
+"Por isso: reduzir tensão e estresse, sessões curtas e controle da ansiedade (psicológico ou medicamentoso)."],
+["Diabetes","Caso: paciente diabético tem língua lisa, sem papilas, avermelhada e com queimação. Qual alteração?",
+["Glossodinia (síndrome da ardência bucal)","Língua geográfica (glossite migratória)","Macroglossia relativa","Candidíase hiperplásica crônica"],
+"Pode haver inflamação ou infecção da língua, edema, mudança de cor e perda de papilas."],
+["Diabetes","Qual destas é uma complicação da hiperglicemia persistente?",
+["Retinopatia diabética","Fluorose dentária","Instabilidade atlanto-axial","Asma brônquica"],
+"Outras: polineuropatia, catarata, amputações, insuficiência renal, hipertensão, IAM e AVE."],
+["Bebês e gestantes","Caso: um bebê com anquiloglossia vai fazer frenotomia. Qual complicação pode ocorrer, mesmo sendo um procedimento simples?",
+["Sangramento, obstrução de vias aéreas e infecção","Erupção precoce de todos os dentes decíduos","Fluorose dos dentes decíduos","Nenhuma complicação é possível nesse procedimento"],
+"Também: dor pós-operatória. A frenotomia é feita com estabilização protetora, tesoura afiada sem ponta e anestésico local."],
+["Bebês e gestantes","Quais são os elementos avaliados no BTAT (Bristol Tongue Assessment Tool)?",
+["Ponta, fixação do frênulo, elevação e projeção","Cor dos dentes, cárie, gengiva e palato","Peso, altura, pressão arterial e glicemia","Choro, sono, febre e episódios de diarreia"],
+"Os pontos somam de 0 a 8. Escores de 0 a 3 indicam redução mais grave da função da língua."],
+["Bebês e gestantes","Caso: um bebê de 14 meses está aprendendo a andar. Qual a orientação preventiva sobre trauma?",
+["Proteger quinas e usar meias antiderrapantes","Não deixar o bebê andar até os 2 anos","Usar protetor bucal de atleta","Não há risco de trauma nessa fase"],
+"Ao aprender a andar há maior risco de quedas e trauma dentário."]
+]},
+{
+nome: "Prova 5",
+questoes: [
+["TEA","Caso: paciente com TEA fica observando as próprias mãos, bate nas orelhas e se fixa no reflexo da luz do refletor. Como se chamam esses comportamentos?",
+["Estereotipias","Crises convulsivas","Reações alérgicas","Hipoglicemia"],
+"Outras estereotipias: chacoalhar braços, ecolalia, pular e gritar sem motivo, andar na ponta dos pés, estalar os dedos na frente dos olhos."],
+["TEA","Qual é a tríade de Wing, usada para descrever o TEA?",
+["Linguagem, repetição e socialização","Febre, sopro cardíaco e anorexia","Polidipsia, polifagia e poliúria","Sibilância, tosse e falta de ar"],
+"O mesmo paciente pode apresentar a tríade de formas diferentes. Não se deve procurar cada item, porque cada caso é único."],
+["TEA","Quando a estabilização protetora pode ser usada em um paciente com TEA?",
+["Se necessária, após esgotar outros recursos","Sempre, já na primeira consulta","Nunca, em nenhuma situação clínica","Somente para tirar radiografias simples"],
+"Técnicas básicas: comunicação, distração, imitação e dessensibilização. Técnicas físicas: estabilização, quando necessária."],
+["TEA","Qual a causa principal do TEA, segundo o material?",
+["Genética (97 a 99% dos casos)","Vacinas na infância","Uso de chupeta","Falta de carinho dos pais"],
+"Cerca de 81% é hereditário e 1 a 3% tem origem ambiental. Pais com mais de 40 anos podem ter mais predisposição."],
+["Hipertensão","Caso: paciente com PA de 118/78 mmHg. Como fica no semáforo da PA?",
+["Verde: atendimento livre","Amarelo: atenção","Vermelho: monitorar","Vermelho: adiar o eletivo"],
+"Normal: < 120 / < 80 mmHg. A referência média é 120/80 em adultos e 100/65 em crianças."],
+["Hipertensão","Qual sistema hormonal produz angiotensina II, um potente vasoconstritor que eleva a PA?",
+["Sistema renina-angiotensina-aldosterona","Sistema nervoso parassimpático","Peptídeo natriurético atrial (ANP)","Hormônios da glândula tireoide"],
+"A renina é liberada pelos rins e inicia a cascata. O peptídeo natriurético atrial faz o contrário: reduz a PA."],
+["Hipertensão","Caso: paciente usa losartana para a pressão. A qual classe ela pertence?",
+["Bloqueador de receptor de angiotensina","Diurético tiazídico","Bloqueador de canal de cálcio","Vasodilatador direto"],
+"Losartana e valsartana bloqueiam a ação da angiotensina II e têm excelente tolerabilidade."],
+["Cardiopatias","Caso: paciente com angina estável vai para tratamento eletivo. Qual condição deve ser verificada na anamnese em relação ao sangramento?",
+["Se o paciente usa antiagregante plaquetário","Se o paciente usa dentifrício com flúor","Se o paciente ainda tem dentes decíduos","Se o paciente usa fio dental todos os dias"],
+"Muitos cardiopatas usam AAS ou anticoagulantes. O AAS não é suspenso e o sangramento é controlado com medidas locais."],
+["Cardiopatias","Qual a diferença entre angina estável e instável?",
+["Instável: dor mais frequente, intensa ou em repouso","Instável: dor que só aparece ao subir escada","Estável: dor em repouso que não passa","Não há diferença clínica entre elas"],
+"Na instável, o tratamento eletivo é contraindicado e as urgências são feitas em hospital."],
+["Cardiopatias","Caso: paciente usa varfarina e o RNI está em 3,8. Precisa extrair um dente com urgência. O que fazer?",
+["Não fazer no consultório; o RNI está acima de 2,5","Fazer a exodontia normalmente, já que é urgente","Orientar o paciente a suspender a varfarina sozinho","Fazer a exodontia sem anestesia para sangrar menos"],
+"Com RNI acima de 2,5 o risco de sangramento é alto. É preciso conversar com o médico e avaliar ambiente hospitalar."],
+["Endocardite","Qual destas é uma condição de alto risco para endocardite, segundo a AHA?",
+["Endocardite infecciosa prévia","Hipertensão arterial controlada","Asma leve","Diabetes tipo 2 controlado"],
+"Outras: valva protética, cardiopatia congênita cianótica não corrigida, cardiopatia corrigida com prótese (6 primeiros meses) e valvulopatia pós-transplante."],
+["Endocardite","Caso: paciente de alto risco para endocardite vai fazer uma radiografia panorâmica. Precisa de profilaxia?",
+["Não; radiografia não exige profilaxia","Sim, amoxicilina 2 g antes do exame","Sim, azitromicina por 3 dias depois","Sim, mas apenas se for criança"],
+"Também não precisam: aparelhos ortodônticos removíveis, ajuste de aparelho e esfoliação de decíduos."],
+["Doenças pulmonares","Qual é a doença respiratória crônica mais comum, segundo o material?",
+["Asma brônquica","Enfisema pulmonar","Fibrose cística","Tuberculose"],
+"A asma atinge cerca de 1 em cada 20 pessoas e é mediada por linfócitos e eosinófilos."],
+["Doenças pulmonares","Caso: asmático conta que a crise piora quando fica nervoso. O que o dentista deve fazer?",
+["Controlar estresse e ansiedade durante a consulta","Ignorar, porque é só psicológico","Fazer consultas longas para resolver tudo","Pedir para ele parar a bombinha"],
+"As crises podem ser desencadeadas por estresse físico e emocional."],
+["Doenças pulmonares","Qual característica dentofacial é mais comum em crianças asmáticas?",
+["Palato alto e mordida cruzada posterior","Palato baixo e largo, sem mordida cruzada","Ausência total de overjet nos incisivos","Muitos dentes supranumerários anteriores"],
+"Também: aumento da altura facial anterior e overjets maiores, ligados à respiração bucal."],
+["Síndrome de Down","Qual o fenótipo característico da Síndrome de Down?",
+["Olhos amendoados e prega palmar única","Olhos muito separados e mãos com seis dedos","Pescoço alongado e estatura acima da média","Nariz grande, pontiagudo e boca pequena"],
+"Também: ponta nasal achatada, pescoço curto, baixa estatura, frouxidão ligamentar e hipotonia."],
+["Síndrome de Down","Na Síndrome de Down, qual fator de risco materno é mais conhecido?",
+["Idade materna avançada","Mãe muito jovem","Uso de flúor na gestação","Amamentação prolongada"],
+"Também: gestação anterior de criança com T21 e rearranjo cromossômico parental envolvendo o 21."],
+["Síndrome de Down","Caso: criança com Síndrome de Down tem engasgos, alimentação lenta e baixo ganho de peso. Por que se preocupar?",
+["Pode haver disfagia e aspiração silenciosa","É sinal de que vai ter muita cárie","É sinal de diabetes","Não é motivo de preocupação"],
+"Dificuldades de alimentação e deglutição são frequentes na T21 (31 a 80%)."],
+["Síndrome de Down","Qual a característica dos lábios e da língua frequente na Síndrome de Down?",
+["Lábios fissurados e língua fissurada","Lábios sempre hidratados e língua lisa","Lábios com tumores benignos múltiplos","Língua e lábios sem nenhuma alteração"],
+"Esses achados se somam ao bruxismo frequente e à respiração bucal."],
+["Diabetes","Caso: gestante desenvolve intolerância à glicose que regride depois do parto. Qual o diagnóstico?",
+["DM gestacional","Diabetes tipo 1","Pré-eclâmpsia","Hipotireoidismo"],
+"Os hormônios da placenta causam resistência à insulina. Se o pâncreas não compensa, ocorre o diabetes gestacional."],
+["Diabetes","Caso: paciente diabético descompensado precisa de antibiótico. Com quais medicamentos ter atenção especial?",
+["Bactrim, AINEs, AIEs e betabloqueadores","Amoxicilina e paracetamol em dose comum","Flúor tópico e clorexidina 0,12%","Suplementos de vitamina C e ferro"],
+"Esses medicamentos podem interferir no controle da glicemia."],
+["Diabetes","Qual exame deve ser feito no consultório antes de atender um paciente diabético?",
+["Glicemia capilar","Teste da linguinha","RNI","Espirometria"],
+"Pacientes compensados são mais seguros. Descompensação pode virar emergência médica."],
+["Bebês e gestantes","Quais são os 'primeiros 1000 dias'?",
+["Gestação (270) + 1º ano (365) + 2º ano (365)","Só os 1000 dias que vêm depois do nascimento","Do nascimento até os 5 anos de idade","Apenas o período em que o bebê é amamentado"],
+"É uma janela de programação metabólica e imunológica, com impacto no desenvolvimento físico, cognitivo e emocional."],
+["Bebês e gestantes","Quais são sinais de uma pega ideal na amamentação?",
+["Boca na aréola e lábios evertidos","Bebê suga apenas o mamilo, sem a aréola","Nariz do bebê afundado e apertado no seio","Bochechas encovadas enquanto o bebê suga"],
+"Outros sinais: nariz livre, bochecha cheia, queixo encostado no seio, barriga e tronco voltados para a mãe."],
+["Bebês e gestantes","Caso: bebê de 10 meses com os primeiros dentes. Qual pasta e quantidade usar?",
+["Pasta com flúor (1.000 ppm) em quantidade mínima","Pasta sem flúor até os 3 anos de idade","Pasta de adulto cobrindo toda a escova","Não usar escova nem pasta até os 2 anos"],
+"A quantidade é adequada à idade (grão de arroz cru), com escovação supervisionada pelo adulto."]
+]}
+];
+
+</script>
+<script>
+(function(){
+"use strict";
+const app = document.getElementById("app");
+const LETTERS = ["A","B","C","D"];
+const STORE = "estudaemilly.pne.v1";
+
+// ---------- armazenamento (opcional) ----------
+function load(){ try{ return JSON.parse(localStorage.getItem(STORE)) || {}; }catch(e){ return {}; } }
+function save(d){ try{ localStorage.setItem(STORE, JSON.stringify(d)); }catch(e){} }
+let db = load(); db.best = db.best || {}; db.tries = db.tries || {}; db.mode = db.mode || "simulado"; if(db.shuffle===undefined) db.shuffle = true;
+
+// ---------- util ----------
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const fmtTime = s => { const m=Math.floor(s/60), r=s%60; return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0"); };
+const toothSVG = '<svg class="tooth" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.2 2.5c-2.6 0-4.4 2.1-4.4 5 0 2.2.9 3.6 1.6 5.4.6 1.6.7 3.5 1 5.4.3 2 .9 3.2 2 3.2 1.4 0 1.7-2 2-3.9.3-1.6.6-2.9 2.6-2.9s2.3 1.3 2.6 2.9c.3 1.9.6 3.9 2 3.9 1.1 0 1.7-1.2 2-3.2.3-1.9.4-3.8 1-5.4.7-1.8 1.6-3.2 1.6-5.4 0-2.9-1.8-5-4.4-5-1.7 0-2.8.8-4.8.8s-3.1-.8-4.8-.8z" opacity=".9"/></svg>';
+const ALL = PROVAS.flatMap((p,pi)=>p.questoes.map((q,qi)=>({q,pi,qi})));
+const TEMAS = [...new Set(ALL.map(x=>x.q[0]))];
+
+// ---------- estado da prova ----------
+let S = null; let tick = null;
+
+function startExam(idx){
+  let items;
+  if(idx === "mix"){
+    // 25 questões sorteadas do banco inteiro
+    items = shuffle(ALL).slice(0,25).map(x=>x.q);
+  } else {
+    items = PROVAS[idx].questoes.slice();
+    if(db.shuffle) items = shuffle(items);
+  }
+  const qs = items.map(q=>{
+    const order = shuffle([0,1,2,3]);
+    return { tema:q[0], texto:q[1], alts:order.map(i=>q[2][i]), certa:order.indexOf(0), exp:q[3] };
+  });
+  S = { idx, nome: idx==="mix" ? "Prova surpresa" : PROVAS[idx].nome, mode: db.mode, qs, ans: Array(qs.length).fill(null), cur:0, t0:Date.now(), elapsed:0, done:false, confirm:false, filter:"erradas" };
+  clearInterval(tick);
+  tick = setInterval(()=>{ if(!S||S.done) return; S.elapsed = Math.floor((Date.now()-S.t0)/1000); const el=document.getElementById("timer"); if(el) el.textContent = fmtTime(S.elapsed); }, 1000);
+  renderExam(); window.scrollTo(0,0);
+}
+
+// ---------- tela inicial ----------
+function renderHome(){
+  clearInterval(tick); S = null;
+  const cards = PROVAS.map((p,i)=>{
+    const best = db.best[i]; const tries = db.tries[i]||0;
+    const pct = best!=null ? Math.round(best/p.questoes.length*100) : 0;
+    return `<button class="card" data-start="${i}">
+      <div class="top"><h3>${esc(p.nome)}</h3><span class="n">${p.questoes.length} questões</span></div>
+      <div class="bar" aria-hidden="true"><i style="width:${pct}%"></i></div>
+      <div class="meta"><span>Melhor: <b>${best!=null? best+"/"+p.questoes.length : "—"}</b></span><span>${tries? tries+(tries>1?" tentativas":" tentativa") : "Não feita"}</span></div>
+    </button>`;
+  }).join("");
+  app.innerHTML = `<div class="wrap fade">
+    <header class="brand"><button class="logo" data-home>${toothSVG}<span>estuda<b>emilly</b></span></button></header>
+    <section class="hero">
+      <h1>Casos clínicos de <em>Pacientes com Necessidades Especiais</em></h1>
+      <p class="muted">5 simulados de 25 questões em formato de caso clínico: o paciente chega e você decide o diagnóstico e a conduta. Feitos a partir do caderno de Clínica Integrada da Pessoa com Necessidades Especiais.</p>
+      <div class="subjects">
+        <span class="chip accent">TEA</span><span class="chip">Hipertensão e cardiopatias</span><span class="chip">Endocardite</span><span class="chip">Doenças pulmonares</span><span class="chip">Síndrome de Down</span><span class="chip">Diabetes</span><span class="chip">Bebês e gestantes</span>
+      </div>
+    </section>
+    <section class="mode" aria-label="Modo de estudo">
+      <span class="label">Como você quer treinar?</span>
+      <div class="seg" role="group">
+        <button id="m-sim" data-mode="simulado" aria-pressed="${db.mode==="simulado"}"><strong>Simulado</strong><span>Responde tudo, vê a nota e a correção no final</span></button>
+        <button id="m-tre" data-mode="treino" aria-pressed="${db.mode==="treino"}"><strong>Treino</strong><span>Vê se acertou e a explicação a cada questão</span></button>
+      </div>
+      <label class="opts"><input type="checkbox" id="shuf" ${db.shuffle?"checked":""}> Embaralhar a ordem das questões</label>
+    </section>
+    <div class="grid">${cards}
+      <button class="card mix" data-start="mix">
+        <div class="top"><h3>Prova surpresa</h3><span class="n">25 questões</span></div>
+        <div class="meta"><span>Sorteia questões de todas as provas</span></div>
+      </button>
+    </div>
+    <div class="foot">
+      <span>${ALL.length} questões no total · temas: ${TEMAS.map(esc).join(", ")}.</span>
+      <span>Seu progresso fica salvo só neste navegador.</span>
+      <span id="resetwrap"><button class="linkbtn" id="reset">Apagar meu histórico</button></span>
+    </div>
+  </div>`;
+}
+
+// ---------- prova ----------
+function renderExam(){
+  const q = S.qs[S.cur]; const a = S.ans[S.cur];
+  const answered = S.ans.filter(x=>x!==null).length;
+  const reveal = S.mode==="treino" && a!==null;
+  const altsHTML = q.alts.map((t,i)=>{
+    let cls = "alt";
+    if(reveal){ if(i===q.certa) cls+=" ok"; else if(i===a) cls+=" no"; }
+    return `<li><button class="${cls}" data-alt="${i}" aria-pressed="${a===i}" ${reveal?"disabled":""}><span class="k">${LETTERS[i]}</span><span>${esc(t)}</span></button></li>`;
+  }).join("");
+  let exp = "";
+  if(reveal){
+    const ok = a===q.certa;
+    exp = `<div class="explain ${ok?"good":"bad"}" role="status"><strong>${ok?"Acertou!":"Resposta certa: "+LETTERS[q.certa]}</strong>${esc(q.exp)}</div>`;
+  }
+  const dots = S.qs.map((qq,i)=>{
+    let c="dot"; const ai=S.ans[i];
+    if(S.mode==="treino" && ai!==null) c += ai===qq.certa?" ok":" no"; else if(ai!==null) c+=" done";
+    if(i===S.cur) c+=" cur";
+    return `<button class="${c}" data-go="${i}" aria-label="Questão ${i+1}">${i+1}</button>`;
+  }).join("");
+  const last = S.cur===S.qs.length-1;
+  const missing = S.qs.length - answered;
+  const confirm = S.confirm ? `<div class="confirm" role="alert">
+      <span>${missing>0? `Ainda faltam <b>${missing}</b> ${missing>1?"questões":"questão"} sem resposta. Questões em branco contam como erro.` : "Quer finalizar e ver sua nota?"}</span>
+      <div class="row"><button class="btn primary" data-finish-yes>Finalizar agora</button><button class="btn" data-finish-no>Continuar respondendo</button></div>
+    </div>` : "";
+  app.innerHTML = `
+  <div class="examhead"><div class="in">
+    <button class="logo" data-quit aria-label="Sair para o início">${toothSVG}</button>
+    <span class="ttl">${esc(S.nome)}</span>
+    <div class="prog"><small><span>${answered}/${S.qs.length} respondidas</span><span>${S.mode==="treino"?"Treino":"Simulado"} · <span class="timer" id="timer">${fmtTime(S.elapsed)}</span></span></small>
+      <div class="bar"><i style="width:${answered/S.qs.length*100}%"></i></div></div>
+    <button class="btn" data-finish>Finalizar</button>
+  </div></div>
+  <main class="wrap fade" style="padding-top:4px">
+    <div class="qmeta"><span class="qnum">Questão ${S.cur+1} de ${S.qs.length}</span><span class="chip">${esc(q.tema)}</span></div>
+    <p class="qtext">${esc(q.texto)}</p>
+    <ul class="alts">${altsHTML}</ul>
+    ${exp}
+    <div class="nav">
+      <button class="btn" data-prev ${S.cur===0?"disabled":""}>← Anterior</button>
+      ${last ? `<button class="btn primary" data-finish>Ver resultado</button>` : `<button class="btn primary" data-next>Próxima →</button>`}
+    </div>
+    ${confirm}
+    <div class="dots" aria-label="Ir para questão">${dots}</div>
+    <p class="muted" style="font-size:13.5px;margin-top:18px">Atalhos: teclas A–D ou 1–4 para marcar, setas ← → para navegar.</p>
+  </main>`;
+}
+
+function finish(){
+  S.done = true; clearInterval(tick);
+  S.elapsed = Math.floor((Date.now()-S.t0)/1000);
+  const acertos = S.qs.reduce((n,q,i)=>n+(S.ans[i]===q.certa?1:0),0);
+  S.acertos = acertos;
+  if(S.idx!=="mix"){
+    db.tries[S.idx] = (db.tries[S.idx]||0)+1;
+    if(db.best[S.idx]==null || acertos>db.best[S.idx]) db.best[S.idx] = acertos;
+    save(db);
+  }
+  renderResult(); window.scrollTo(0,0);
+}
+
+function renderResult(){
+  const n = S.qs.length, ac = S.acertos, pct = Math.round(ac/n*100);
+  const nota = (ac/n*10).toFixed(1).replace(".",",");
+  const C = 2*Math.PI*56; const off = C*(1-ac/n);
+  const msg = pct>=90?"Excelente, está pronta!": pct>=70?"Muito bem! Revise os erros para fechar.": pct>=50?"Bom caminho. Vale revisar os temas com menos acertos.":"Continue treinando: revise as explicações abaixo e refaça.";
+  const byT = {};
+  S.qs.forEach((q,i)=>{ byT[q.tema] = byT[q.tema]||{t:0,a:0}; byT[q.tema].t++; if(S.ans[i]===q.certa) byT[q.tema].a++; });
+  const topics = Object.entries(byT).sort((x,y)=>(x[1].a/x[1].t)-(y[1].a/y[1].t)).map(([t,v])=>{
+    const p = Math.round(v.a/v.t*100); const c = p<50?"lo":p<75?"mid":"hi";
+    return `<div class="trow"><span>${esc(t)}</span><span class="pct">${v.a}/${v.t}</span><div class="bar"><i class="${c}" style="width:${Math.max(p,3)}%"></i></div></div>`;
+  }).join("");
+  const erradas = S.qs.filter((q,i)=>S.ans[i]!==q.certa).length;
+  const list = S.qs.map((q,i)=>({q,i,a:S.ans[i]})).filter(x=> S.filter==="todas" || x.a!==x.q.certa).map(({q,i,a})=>{
+    const st = a===null?"skip": a===q.certa?"ok":"no";
+    return `<article class="rev ${st}">
+      <div class="qmeta" style="margin:0"><span class="qnum">${i+1}</span><span class="chip">${esc(q.tema)}</span>${st==="skip"?'<span class="chip">Em branco</span>':""}</div>
+      <div class="q">${esc(q.texto)}</div>
+      <div class="a">${st==="no"?`<span class="y">Sua resposta: ${LETTERS[a]}) ${esc(q.alts[a])}</span>`:""}<span class="c">Correta: ${LETTERS[q.certa]}) ${esc(q.alts[q.certa])}</span></div>
+      <div class="e">${esc(q.exp)}</div>
+    </article>`;
+  }).join("") || `<p class="muted">Nenhuma questão errada. Parabéns!</p>`;
+  app.innerHTML = `<div class="wrap fade">
+    <header class="brand"><button class="logo" data-home>${toothSVG}<span>estuda<b>emilly</b></span></button><span class="muted">${esc(S.nome)}</span></header>
+    <section class="score">
+      <div class="ring" role="img" aria-label="${ac} de ${n} acertos">
+        <svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="var(--surface-2)" stroke-width="12"/><circle class="fg" cx="66" cy="66" r="56" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
+        <div class="v"><div><b>${ac}</b><br><span>de ${n}</span></div></div>
+      </div>
+      <div style="min-width:0"><h2>Nota ${nota}</h2><p>${msg}</p>
+        <div class="stats"><span><b>${pct}%</b> de acertos</span><span>Tempo <b>${fmtTime(S.elapsed)}</b></span><span><b>${erradas}</b> para revisar</span></div></div>
+    </section>
+    <section class="section"><h3>Desempenho por tema</h3><div class="topics">${topics}</div></section>
+    <section class="section"><h3>Correção</h3>
+      <div class="filter"><button class="btn" data-filter="erradas" aria-pressed="${S.filter==="erradas"}">Só erros (${erradas})</button><button class="btn" data-filter="todas" aria-pressed="${S.filter==="todas"}">Todas (${n})</button></div>
+      ${list}
+    </section>
+    <div class="actions"><button class="btn primary" data-redo>Refazer esta prova</button><button class="btn" data-home>Voltar ao início</button></div>
+  </div>`;
+}
+
+// ---------- eventos ----------
+app.addEventListener("click", e=>{
+  const t = e.target.closest("button"); if(!t) return;
+  const d = t.dataset;
+  if(d.home!==undefined){ renderHome(); window.scrollTo(0,0); return; }
+  if(d.quit!==undefined){ renderHome(); window.scrollTo(0,0); return; }
+  if(d.mode){ db.mode = d.mode; save(db); document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.mode===db.mode)); return; }
+  if(d.start!==undefined){ startExam(d.start==="mix"?"mix":Number(d.start)); return; }
+  if(t.id==="reset"){ document.getElementById("resetwrap").innerHTML = 'Apagar notas e tentativas? <button class="linkbtn" id="reset-yes">Sim, apagar</button> · <button class="linkbtn" id="reset-no">Cancelar</button>'; return; }
+  if(t.id==="reset-yes"){ db.best={}; db.tries={}; save(db); renderHome(); return; }
+  if(t.id==="reset-no"){ renderHome(); return; }
+  if(!S) return;
+  if(d.alt!==undefined){ choose(Number(d.alt)); return; }
+  if(d.next!==undefined){ go(S.cur+1); return; }
+  if(d.prev!==undefined){ go(S.cur-1); return; }
+  if(d.go!==undefined){ go(Number(d.go)); return; }
+  if(d.finish!==undefined){ S.confirm = true; renderExam(); const c=document.querySelector(".confirm"); if(c) c.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+  if(d.finishYes!==undefined){ finish(); return; }
+  if(d.finishNo!==undefined){ S.confirm=false; renderExam(); return; }
+  if(d.filter){ S.filter = d.filter; renderResult(); return; }
+  if(d.redo!==undefined){ startExam(S.idx); return; }
+});
+app.addEventListener("change", e=>{ if(e.target.id==="shuf"){ db.shuffle = e.target.checked; save(db); } });
+
+function choose(i){
+  if(S.done) return;
+  if(S.mode==="treino" && S.ans[S.cur]!==null) return;
+  S.ans[S.cur] = i; S.confirm=false; renderExam();
+  if(S.mode==="treino"){ const ex=document.querySelector(".explain"); if(ex) ex.scrollIntoView({block:"nearest",behavior:"smooth"}); }
+}
+function go(i){ if(i<0||i>=S.qs.length) return; S.cur=i; S.confirm=false; renderExam(); window.scrollTo({top:0}); }
+
+document.addEventListener("keydown", e=>{
+  if(!S || S.done || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toUpperCase();
+  const map = {A:0,B:1,C:2,D:3,"1":0,"2":1,"3":2,"4":3};
+  if(k in map){ choose(map[k]); e.preventDefault(); }
+  else if(e.key==="ArrowRight"){ go(S.cur+1); }
+  else if(e.key==="ArrowLeft"){ go(S.cur-1); }
+});
+
+renderHome();
+})();
+</script>
+
+</body>
+</html>
